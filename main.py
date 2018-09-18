@@ -21,5 +21,5 @@ if selected_option in options:
         code = row['code'].replace(' ', '')
         print(code)
 else:
-  input('Option not implemented, bye.')
+  print('Option not implemented, bye.')
   exit()
