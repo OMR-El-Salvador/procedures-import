@@ -1,2 +1,4 @@
 *.csv
 environment
+.vscode
+__pycache__
