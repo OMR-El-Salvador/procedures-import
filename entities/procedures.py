@@ -17,7 +17,7 @@ class Procedure(AbstractEntity):
   def execute(self):
     self.prepare()
 
-    with open('procedures.csv', encoding='iso-8859-1') as csvfile:
+    with open('data/procedures.csv', encoding='iso-8859-1') as csvfile:
       reader = csv.DictReader(csvfile)
       for row in reader:
         code = row['code'].replace(' ', '')
