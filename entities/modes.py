@@ -22,7 +22,7 @@ class Modes(AbstractEntity):
       for row in reader:
         procedure_code = row['procedure_code'].replace(' ', '')
         code = row['code'].replace(' ', '')
-        name = row['name'].split('-')[1]
+        name = 'Modalidad única' if code.endswith('0') else row['name'].split('-')[1]
         # qs = 'INSERT INTO ' + self._table_name + ' (code, name, description) VALUES (%s, %s, %s)'
         # values = (code, name, desc)
         # self._db.create_record(qs, values)
