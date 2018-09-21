@@ -2,7 +2,7 @@ import csv
 from .db import DB
 from .abstract_entity import AbstractEntity
 
-class Procedure(AbstractEntity):
+class Procedures(AbstractEntity):
 
   def __init__(self):
     self._db = DB()
