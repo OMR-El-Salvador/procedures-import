@@ -26,6 +26,5 @@ class Procedures(AbstractEntity):
         qs = 'INSERT INTO ' + self._table_name + ' (code, name, description) VALUES (%s, %s, %s)'
         values = (code, name, desc)
         self._db.create_record(qs, values)
-        print('Imported: ' + code)
 
     self.cleanup()
