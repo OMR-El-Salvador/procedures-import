@@ -17,14 +17,13 @@ class Procedures(AbstractEntity):
   def execute(self):
     self.prepare()
 
-    with open('data/procedures.csv', encoding='iso-8859-1') as csvfile:
+    with open('data/procedures.csv', encoding='utf-8') as csvfile:
       reader = csv.DictReader(csvfile)
       for row in reader:
         code = row['code'].replace(' ', '')
         name = row['name']
-        desc = row['description']
-        qs = 'INSERT INTO ' + self._table_name + ' (code, name, description) VALUES (%s, %s, %s)'
-        values = (code, name, desc)
+        qs = 'INSERT INTO ' + self._table_name + ' (code, name) VALUES (%s, %s)'
+        values = (code, name)
         self._db.create_record(qs, values)
 
     self.cleanup()
