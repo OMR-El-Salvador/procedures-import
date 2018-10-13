@@ -12,13 +12,9 @@ print('Current options:')
 for key, value in options.items():
   print('%d) %s' % (key, value.__name__))
 
-try:
-  selected_option = int(input('Please enter your selection:'))
-  instance = options[selected_option]()
-  instance.execute()
-except KeyError:
-  print('Not implemented option.')
-except Exception as ex:
-  print('Error: ' + str(ex))
+selected_option = int(input('Please enter data to import:'))
+institution_code = input('Please enter institution code:').upper()
+instance = options[selected_option](institution_code)
+instance.execute()
 
 print('So long and thanks for all the fish!')

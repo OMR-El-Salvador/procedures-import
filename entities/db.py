@@ -13,6 +13,7 @@ class DB():
 
   def create_record(self, qs, values):
     cur = self.conn.cursor()
+    # print(cur.mogrify(qs,values))
     cur.execute(qs, values)
     self.qty += 1
 

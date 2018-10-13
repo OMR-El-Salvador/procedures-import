@@ -4,9 +4,10 @@ from .abstract_entity import AbstractEntity
 
 class Procedures(AbstractEntity):
 
-  def __init__(self):
+  def __init__(self, institution_code):
     self._db = DB()
     self._table_name = 'api.procedures'
+    self._institution_code = institution_code
   
   def prepare(self):
     self._db.empty_table(self._table_name)
@@ -17,13 +18,15 @@ class Procedures(AbstractEntity):
   def execute(self):
     self.prepare()
 
-    with open('data/procedures.csv', encoding='utf-8') as csvfile:
+    with open('data/'+self._institution_code+'/procedures.csv', encoding='utf-8') as csvfile:
       reader = csv.DictReader(csvfile)
       for row in reader:
         code = row['code'].replace(' ', '')
         name = row['name']
-        qs = 'INSERT INTO ' + self._table_name + ' (code, name) VALUES (%s, %s)'
-        values = (code, name)
+        qs = 'INSERT INTO ' + self._table_name
+        qs += '(code, name, institution_id) VALUES (%s, %s, '
+        qs += '(SELECT id FROM api.institutions WHERE code=%s));'
+        values = (code, name, self._institution_code)
         self._db.create_record(qs, values)
 
     self.cleanup()
