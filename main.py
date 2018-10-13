@@ -4,7 +4,7 @@
 import importlib
 from entities import *
 
-options = { 1: Procedures, 2: Modes, 4: Addresses }
+options = { 1: Procedures, 2: Modes, 3: LegalBase, 4: Addresses }
 
 print('Welcome to the OMR procedure import process!')
 print('Current options:')
