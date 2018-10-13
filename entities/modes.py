@@ -56,7 +56,8 @@ class Modes(AbstractEntity):
         class_code = self.extract_val(classes_code, row['class_code'])
         currency = self.extract_val(currencies, row['currency'])
         #TODO: Improve charge type handling
-        charge_amount = None if row['charge_amount']=='P' else row['charge_amount'].replace('$', '').replace(' ', '')
+        charge_amount = None if row['charge_amount']=='P' \
+            else row['charge_amount'].replace('$', '').replace(' ', '')
         charge_link = None if row['charge_link']=='' else row['charge_link']
         payment_places = self.extract_places(str(row['payment_places']))
 
