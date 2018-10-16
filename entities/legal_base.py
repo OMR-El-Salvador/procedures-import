@@ -10,7 +10,7 @@ class LegalBase(AbstractEntity):
     self._institution_code = institution_code
   
   def prepare(self):
-    self._db.empty_table(self._table_name)
+    return #self._db.empty_table(self._table_name)
   
   def cleanup(self):
     self._db.complete_operations()
@@ -19,7 +19,9 @@ class LegalBase(AbstractEntity):
     self.prepare()
 
     legis_type = { 'Ley': 'law', 'Reglamento de Ley': 'regulation', 'No Existe': 'non_existent',
-        'Acuerdo Ministerial': 'ministerial_agreement', 'Otro': 'other' }
+        'Acuerdo Ministerial': 'ministerial_agreement', 'Otro': 'other',
+        'Constitución': 'constitution', 'Tratado Internacional': 'international_treaty',
+        'Reglamento Técnico': 'technical_regulation', 'Decreto Ejecutivo': 'executive_order' }
 
     with open('data/'+self._institution_code+'/legal_base.csv', encoding='utf-8') as csvfile:
       reader = csv.DictReader(csvfile)
@@ -28,12 +30,10 @@ class LegalBase(AbstractEntity):
         if row['legislation_type'].upper()=='NO APLICA': continue
 
         mode_code = row['mode_code'].replace(' ', '')
-        print(mode_code)
-        base_type = legis_type[row['legislation_type']]
+        base_type = legis_type[row['legislation_type'].rstrip()]
         name = None if row['legislation_name']=='0' else row['legislation_name']
         reference = row['legislation_reference']
         topic = row['legal_topic'].rstrip()
-
         qs = 'INSERT INTO ' + self._table_name
         qs += '(mode_id, type, legislation_name, legislation_reference, '
         qs += 'legal_topic_id)'

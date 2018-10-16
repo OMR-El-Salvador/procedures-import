@@ -10,7 +10,7 @@ class Addresses(AbstractEntity):
     self._institution_code = institution_code
   
   def prepare(self):
-    self._db.empty_table(self._table_name)
+    return #self._db.empty_table(self._table_name)
   
   def cleanup(self):
     self._db.complete_operations()
@@ -22,7 +22,7 @@ class Addresses(AbstractEntity):
       reader = csv.DictReader(csvfile)
       for row in reader:
         detail = row['detail']
-        municipality = row['municipality']
+        municipality = row['municipality'].rstrip()
         mode_code = row['mode_code'].replace(' ', '')
         schedule = row['schedule']
         phone = row['phone']

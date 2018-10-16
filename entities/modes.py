@@ -9,10 +9,10 @@ class Modes(AbstractEntity):
     self._table_name = 'api.modes'
     self._institution_code = institution_code
 
-  def extract_val(self, collection, value): return None if value == '' else collection[int(value)]
+  def extract_val(self, collection, value): return None if value == '' or value=='0' else collection[int(value)]
 
   def extract_places(self, places):
-    if places=='0': return None
+    if places=='0' or places=='': return None
     payment_places = { 1: 'central_offices', 2: 'regional_offices', 3: 'financial_institution',
         4: 'online', 5: 'other', 6: 'treasury' }
     places_vals = places.replace(' ', '').split(',')
@@ -21,7 +21,7 @@ class Modes(AbstractEntity):
     return result
 
   def prepare(self):
-    self._db.empty_table(self._table_name)
+    return #self._db.empty_table(self._table_name)
   
   def cleanup(self):
     self._db.complete_operations()
@@ -41,7 +41,7 @@ class Modes(AbstractEntity):
       for row in reader:
         procedure_code = row['procedure_code'].replace(' ', '')
         code = row['code'].replace(' ', '')
-        name = 'Modalidad única' if code.endswith('0') else row['name']
+        name = 'Modalidad única' if code.endswith('0') else row['name'].strip()
         desc = row['description']
         subject = row['subject']
         presentation_mean = self.extract_val(presentation_means, row['presentation_mean'])
@@ -56,7 +56,7 @@ class Modes(AbstractEntity):
         class_code = self.extract_val(classes_code, row['class_code'])
         currency = self.extract_val(currencies, row['currency'])
         #TODO: Improve charge type handling
-        charge_amount = None if row['charge_amount']=='P' \
+        charge_amount = None if row['charge_amount'].upper().replace(' ', '')=='P' \
             else row['charge_amount'].replace('$', '').replace(' ', '')
         charge_link = None if row['charge_link']=='' else row['charge_link']
         payment_places = self.extract_places(str(row['payment_places']))

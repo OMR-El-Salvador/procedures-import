@@ -10,7 +10,7 @@ class Forms(AbstractEntity):
     self._institution_code = institution_code
   
   def prepare(self):
-    self._db.empty_table(self._table_name)
+    return #self._db.empty_table(self._table_name)
   
   def cleanup(self):
     self._db.complete_operations()
