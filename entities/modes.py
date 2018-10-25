@@ -91,7 +91,7 @@ class Modes(AbstractEntity):
         qs += '(code, name, description, procedure_id, subject, presentation_means, '
         qs += 'validity_time_unit, validity_time_amount, response_time_unit, response_time_amount, '
         qs += 'legal_time_unit, legal_time_amount, responsible_area, responsible_unit, class_id, '
-        qs += 'cost_id ,'
+        qs += 'cost_id,'
         qs += 'presentation_url) '
         qs += 'VALUES (%s, %s, %s, (SELECT id FROM api.procedures WHERE code=%s LIMIT 1), %s, %s, '
         qs += '%s, %s, %s, %s, '
@@ -100,9 +100,10 @@ class Modes(AbstractEntity):
         if cost_type:
           qs += '(INSERT INTO api.costs(type, amount, currency, description, main_url, '
           qs += 'secondary_url, main_file, secondary_file, payment_places) '
+          qs += 'VALUES (%s, %s, %s, %s, %s, '
+          qs += '%s, %s, %s, %s::catalogs.places[]) RETURNING id;), '
+        else: qs += 'null, '
 
-        qs += 'VALUES (%s, %s, %s, %s, %s, '
-        qs += '%s, %s, %s, %s::catalogs.places[]) RETURNING id;), '
         qs += '%s);'
 
         values = None
