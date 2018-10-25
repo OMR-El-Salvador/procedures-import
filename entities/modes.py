@@ -38,13 +38,13 @@ class Modes(AbstractEntity):
     legal_time_units = { 1: 'minute', 2: 'day', 3: 'month', 4: 'year' }
     classes_code = { 1: 'EMP', 2: 'CIU', 3: 'ORG', 4: 'OTR' }
     currencies = { 0: None, 1: 'dollar', 2: 'colon' }
-    costs = { 'P': 'rate_schedule', 'ND': 'not_available' }
 
     with open('data/'+self._institution_code+'/modes.csv', encoding='utf-8') as csvfile:
       reader = csv.DictReader(csvfile)
       for row in reader:
         procedure_code = row['procedure_code'].replace(' ', '')
         code = row['code'].replace(' ', '')
+        print(code)
         name = 'Modalidad única' if code.endswith('0') else row['name'].strip()
         desc = self.extract_str(row, 'description')
         subject = self.extract_str(row, 'subject')
@@ -60,18 +60,11 @@ class Modes(AbstractEntity):
         responsible_unit = self.extract_str(row, 'responsible_unit')
         class_code = self.extract_val(classes_code, row['class_code'])
 
-        cost_type = None
-        cost_amount = None
-        currency = None
-        cost_description = None
-        cost_main_url = None
-        cost_secondary_url = None
-        cost_main_file = None
-        cost_secondary_file = None
-        payment_places = None
         cost_val = self.extract_str(row, 'cost_amount')
+        has_cost = False
 
         if cost_val != '0':
+          cost_type = None
           cost_description = self.extract_str(row, 'cost_description')
           cost_main_url = self.extract_str(row, 'cost_main_url')
           cost_secondary_url = self.extract_str(row, 'cost_secondary_url')
@@ -87,38 +80,31 @@ class Modes(AbstractEntity):
             cost_amount = self.extract_str(row, 'cost_amount').replace('$', '').replace(' ', '')
             currency = self.extract_val(currencies, row['currency'])
 
+          cqs = 'INSERT INTO api.costs(type, amount, currency, description, main_url, '
+          cqs += 'secondary_url, main_file, secondary_file, payment_places) '
+          cqs += 'VALUES (%s, %s, %s, %s, %s, '
+          cqs += '%s, %s, %s, %s::catalogs.places[])'
+
+          cvalues = (cost_type, cost_amount, currency, cost_description, cost_main_url,
+              cost_secondary_url, cost_main_file, cost_secondary_file, payment_places)
+
+          self._db.create_record(cqs, cvalues)
+          has_cost = True
+
         qs = 'INSERT INTO ' + self._table_name
         qs += '(code, name, description, procedure_id, subject, presentation_means, '
         qs += 'validity_time_unit, validity_time_amount, response_time_unit, response_time_amount, '
         qs += 'legal_time_unit, legal_time_amount, responsible_area, responsible_unit, class_id, '
-        qs += 'cost_id,'
-        qs += 'presentation_url) '
+        qs += 'presentation_url, cost_id) '
         qs += 'VALUES (%s, %s, %s, (SELECT id FROM api.procedures WHERE code=%s LIMIT 1), %s, %s, '
         qs += '%s, %s, %s, %s, '
         qs += '%s, %s, %s, %s, (SELECT id FROM api.classes WHERE code=%s LIMIT 1), '
+        qs += '%s' + (', currval(\'api.costs_id_seq\'::regclass)' if has_cost else '') + ');'
 
-        if cost_type:
-          qs += '(INSERT INTO api.costs(type, amount, currency, description, main_url, '
-          qs += 'secondary_url, main_file, secondary_file, payment_places) '
-          qs += 'VALUES (%s, %s, %s, %s, %s, '
-          qs += '%s, %s, %s, %s::catalogs.places[]) RETURNING id;), '
-        else: qs += 'null, '
-
-        qs += '%s);'
-
-        values = None
-        if cost_type:
-          values = (code, name, desc, procedure_code, subject, presentation_mean,
-              validity_time_unit, validity_time_amt, response_time_unit, response_time_amt,
-              legal_time_unit, legal_time_amount, responsible_area, responsible_unit, class_code,
-              cost_type, cost_amount, currency, cost_description, cost_main_url,
-              cost_secondary_url, cost_main_file, cost_secondary_file, payment_places,
-              presentation_url)
-        else:
-          values = (code, name, desc, procedure_code, subject, presentation_mean,
-              validity_time_unit, validity_time_amt, response_time_unit, response_time_amt,
-              legal_time_unit, legal_time_amount, responsible_area, responsible_unit, class_code,
-              presentation_url)
+        values = (code, name, desc, procedure_code, subject, presentation_mean,
+            validity_time_unit, validity_time_amt, response_time_unit, response_time_amt,
+            legal_time_unit, legal_time_amount, responsible_area, responsible_unit, class_code,
+            presentation_url)
 
         self._db.create_record(qs, values)
 
