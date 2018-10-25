@@ -38,6 +38,7 @@ class Modes(AbstractEntity):
     legal_time_units = { 1: 'minute', 2: 'day', 3: 'month', 4: 'year' }
     classes_code = { 1: 'EMP', 2: 'CIU', 3: 'ORG', 4: 'OTR' }
     currencies = { 0: None, 1: 'dollar', 2: 'colon' }
+    costs = { 'P': 'rate_schedule', 'ND': 'not_available' }
 
     with open('data/'+self._institution_code+'/modes.csv', encoding='utf-8') as csvfile:
       reader = csv.DictReader(csvfile)
@@ -58,26 +59,65 @@ class Modes(AbstractEntity):
         responsible_area = self.extract_str(row, 'responsible_area')
         responsible_unit = self.extract_str(row, 'responsible_unit')
         class_code = self.extract_val(classes_code, row['class_code'])
-        currency = self.extract_val(currencies, row['currency'])
-        #TODO: Improve charge type handling
-        charge_amount = None if row['charge_amount'].upper().replace(' ', '')=='P' \
-            else row['charge_amount'].replace('$', '').replace(' ', '')
-        charge_link = self.extract_str(row, 'charge_link')
-        payment_places = self.extract_places(str(row['payment_places']))
+
+        cost_type = None
+        cost_amount = None
+        currency = None
+        cost_description = None
+        cost_main_url = None
+        cost_secondary_url = None
+        cost_main_file = None
+        cost_secondary_file = None
+        payment_places = None
+        cost_val = self.extract_str(row, 'cost_amount')
+
+        if cost_val != '0':
+          cost_description = self.extract_str(row, 'cost_description')
+          cost_main_url = self.extract_str(row, 'cost_main_url')
+          cost_secondary_url = self.extract_str(row, 'cost_secondary_url')
+          cost_main_file = self.extract_str(row, 'cost_main_file')
+          cost_secondary_file = self.extract_str(row, 'cost_secondary_file')
+          payment_places = self.extract_places(str(row['payment_places']))
+
+          if cost_val == 'P': cost_type = 'rate_schedule'
+          elif cost_val == 'ND': cost_type = 'not_available'
+          else: cost_type = 'amount'
+
+          if cost_type == 'amount':
+            cost_amount = self.extract_str(row, 'cost_amount').replace('$', '').replace(' ', '')
+            currency = self.extract_val(currencies, row['currency'])
 
         qs = 'INSERT INTO ' + self._table_name
         qs += '(code, name, description, procedure_id, subject, presentation_means, '
         qs += 'validity_time_unit, validity_time_amount, response_time_unit, response_time_amount, '
         qs += 'legal_time_unit, legal_time_amount, responsible_area, responsible_unit, class_id, '
-        qs += 'currency, charge_amount, charge_link, payment_places, presentation_url) '
+        qs += 'cost_id ,'
+        qs += 'presentation_url) '
         qs += 'VALUES (%s, %s, %s, (SELECT id FROM api.procedures WHERE code=%s LIMIT 1), %s, %s, '
         qs += '%s, %s, %s, %s, '
         qs += '%s, %s, %s, %s, (SELECT id FROM api.classes WHERE code=%s LIMIT 1), '
-        qs += '%s, %s, %s, %s::catalogs.places[], %s);'
-        values = (code, name, desc, procedure_code, subject, presentation_mean,
-            validity_time_unit, validity_time_amt, response_time_unit, response_time_amt,
-            legal_time_unit, legal_time_amount, responsible_area, responsible_unit, class_code,
-            currency, charge_amount, charge_link, payment_places, presentation_url)
+
+        if cost_type:
+          qs += '(INSERT INTO api.costs(type, amount, currency, description, main_url, '
+          qs += 'secondary_url, main_file, secondary_file, payment_places) '
+
+        qs += 'VALUES (%s, %s, %s, %s, %s, '
+        qs += '%s, %s, %s, %s::catalogs.places[]) RETURNING id;), '
+        qs += '%s);'
+
+        values = None
+        if cost_type:
+          values = (code, name, desc, procedure_code, subject, presentation_mean,
+              validity_time_unit, validity_time_amt, response_time_unit, response_time_amt,
+              legal_time_unit, legal_time_amount, responsible_area, responsible_unit, class_code,
+              cost_type, cost_amount, currency, cost_description, cost_main_url,
+              cost_secondary_url, cost_main_file, cost_secondary_file, payment_places,
+              presentation_url)
+        else:
+          values = (code, name, desc, procedure_code, subject, presentation_mean,
+              validity_time_unit, validity_time_amt, response_time_unit, response_time_amt,
+              legal_time_unit, legal_time_amount, responsible_area, responsible_unit, class_code,
+              presentation_url)
 
         self._db.create_record(qs, values)
 
