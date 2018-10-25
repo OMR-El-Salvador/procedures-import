@@ -6,7 +6,7 @@ class Addresses(AbstractEntity):
 
   def __init__(self, institution_code):
     self._db = DB()
-    self._table_name = 'public.addresses'
+    self._table_name = 'api.addresses'
     self._institution_code = institution_code
   
   def prepare(self): return #self._db.empty_table(self._table_name)

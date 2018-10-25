@@ -6,7 +6,7 @@ class LegalBase(AbstractEntity):
 
   def __init__(self, institution_code):
     self._db = DB()
-    self._table_name = 'public.legal_base'
+    self._table_name = 'api.legal_base'
     self._institution_code = institution_code
   
   def prepare(self): return #self._db.empty_table(self._table_name)
@@ -42,7 +42,7 @@ class LegalBase(AbstractEntity):
         qs += '(mode_id, type, legislation_name, legislation_reference, '
         qs += 'legal_topic_id)'
         qs += 'VALUES ((SELECT id FROM api.modes WHERE code=%s), %s, %s, %s, '
-        qs += '(SELECT id FROM catalogs.legal_topics WHERE UPPER(name)=UPPER(%s)))'
+        qs += '(SELECT id FROM api.legal_topics WHERE UPPER(name)=UPPER(%s)))'
         values = (mode_code, base_type, name, reference,
             topic)
         self._db.create_record(qs, values)
