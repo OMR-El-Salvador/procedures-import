@@ -27,12 +27,18 @@ class Forms(AbstractEntity):
 
         mode_code = row['mode_code'].replace(' ', '')
         name = self.extract_str(row, 'name')
-        url = self.extract_str(row, 'url')
+
+        url = None
+        file = None
+        val = self.extract_str(row, 'url')
+
+        if 'http' in val: url = val
+        else: file = val
 
         qs = 'INSERT INTO ' + self._table_name
         qs += '(mode_id, name, url) '
-        qs += 'VALUES ((SELECT id FROM api.modes WHERE code=%s), %s, %s);'
-        values = (mode_code, name, url)
+        qs += 'VALUES ((SELECT id FROM api.modes WHERE code=%s), %s, %s, %s);'
+        values = (mode_code, name, url, file)
         self._db.create_record(qs, values)
 
     self.cleanup()
