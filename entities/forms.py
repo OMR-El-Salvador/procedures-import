@@ -9,11 +9,13 @@ class Forms(AbstractEntity):
     self._table_name = 'public.forms'
     self._institution_code = institution_code
   
-  def prepare(self):
-    return #self._db.empty_table(self._table_name)
+  def prepare(self): return #self._db.empty_table(self._table_name)
   
-  def cleanup(self):
-    self._db.complete_operations()
+  def cleanup(self): self._db.complete_operations()
+
+  def extract_str(self, collection, key):
+    val = collection[key].strip()
+    return None if val == '' else val
 
   def execute(self):
     self.prepare()
@@ -22,10 +24,10 @@ class Forms(AbstractEntity):
       reader = csv.DictReader(csvfile)
       for row in reader:
         if row['solicited']=='': continue
-        
+
         mode_code = row['mode_code'].replace(' ', '')
-        name = row['name']
-        url = row['url']
+        name = self.extract_str(row, 'name')
+        url = self.extract_str(row, 'url')
 
         qs = 'INSERT INTO ' + self._table_name
         qs += '(mode_id, name, url) '

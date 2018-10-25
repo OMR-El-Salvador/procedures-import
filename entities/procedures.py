@@ -9,11 +9,9 @@ class Procedures(AbstractEntity):
     self._table_name = 'api.procedures'
     self._institution_code = institution_code
   
-  def prepare(self):
-    return #self._db.empty_table(self._table_name)
-  
-  def cleanup(self):
-    self._db.complete_operations()
+  def prepare(self): return #self._db.empty_table(self._table_name)
+
+  def cleanup(self): self._db.complete_operations()
 
   def execute(self):
     self.prepare()
@@ -22,7 +20,7 @@ class Procedures(AbstractEntity):
       reader = csv.DictReader(csvfile)
       for row in reader:
         code = row['code'].replace(' ', '')
-        name = row['name']
+        name = row['name'].strip()
         qs = 'INSERT INTO ' + self._table_name
         qs += '(code, name, institution_id) VALUES (%s, %s, '
         qs += '(SELECT id FROM api.institutions WHERE code=%s));'

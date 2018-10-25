@@ -9,7 +9,8 @@ class Modes(AbstractEntity):
     self._table_name = 'api.modes'
     self._institution_code = institution_code
 
-  def extract_val(self, collection, value): return None if value == '' or value=='0' else collection[int(value)]
+  def extract_val(self, collection, value):
+    return None if value == '' or value=='0' else collection[int(value)]
 
   def extract_places(self, places):
     if places=='0' or places=='': return None
@@ -20,11 +21,13 @@ class Modes(AbstractEntity):
     for place in places_vals: result.append(payment_places[int(place)])
     return result
 
-  def prepare(self):
-    return #self._db.empty_table(self._table_name)
+  def extract_str(self, collection, key):
+    val = collection[key].strip()
+    return None if val == '' else val
+
+  def prepare(self): return #self._db.empty_table(self._table_name)
   
-  def cleanup(self):
-    self._db.complete_operations()
+  def cleanup(self): self._db.complete_operations()
 
   def execute(self):
     self.prepare()
@@ -42,24 +45,24 @@ class Modes(AbstractEntity):
         procedure_code = row['procedure_code'].replace(' ', '')
         code = row['code'].replace(' ', '')
         name = 'Modalidad única' if code.endswith('0') else row['name'].strip()
-        desc = row['description']
-        subject = row['subject']
+        desc = self.extract_str(row, 'description')
+        subject = self.extract_str(row, 'subject')
         presentation_mean = self.extract_val(presentation_means, row['presentation_mean'])
-        presentation_url = None if row['presentation_url']=='' else row['presentation_url']
+        presentation_url = self.extract_str(row, 'presentation_url')
         validity_time_unit = self.extract_val(validity_time_units, row['validity_time_unit'])
-        validity_time_amt = None if row['validity_time_amount']=='' else row['validity_time_amount']
+        validity_time_amt = self.extract_str(row, 'validity_time_amount')
         response_time_unit = self.extract_val(response_time_units, row['response_time_unit'])
-        response_time_amt = None if row['response_time_amount']=='' else row['response_time_amount']
+        response_time_amt = self.extract_str(row, 'response_time_amount')
         legal_time_unit = self.extract_val(legal_time_units, row['legal_time_unit'])
-        legal_time_amount = None if row['legal_time_amount']=='' else row['legal_time_amount']
-        responsible_area = row['responsible_area']
-        responsible_unit = row['responsible_unit']
+        legal_time_amount = self.extract_str(row, 'legal_time_amount')
+        responsible_area = self.extract_str(row, 'responsible_area')
+        responsible_unit = self.extract_str(row, 'responsible_unit')
         class_code = self.extract_val(classes_code, row['class_code'])
         currency = self.extract_val(currencies, row['currency'])
         #TODO: Improve charge type handling
         charge_amount = None if row['charge_amount'].upper().replace(' ', '')=='P' \
             else row['charge_amount'].replace('$', '').replace(' ', '')
-        charge_link = None if row['charge_link']=='' else row['charge_link']
+        charge_link = self.extract_str(row, 'charge_link')
         payment_places = self.extract_places(str(row['payment_places']))
 
         qs = 'INSERT INTO ' + self._table_name

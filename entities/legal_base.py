@@ -9,11 +9,13 @@ class LegalBase(AbstractEntity):
     self._table_name = 'public.legal_base'
     self._institution_code = institution_code
   
-  def prepare(self):
-    return #self._db.empty_table(self._table_name)
+  def prepare(self): return #self._db.empty_table(self._table_name)
   
-  def cleanup(self):
-    self._db.complete_operations()
+  def cleanup(self): self._db.complete_operations()
+
+  def extract_str(self, collection, key):
+    val = collection[key].strip()
+    return None if (val == '' or val == '0') else val
 
   def execute(self):
     self.prepare()
@@ -32,9 +34,10 @@ class LegalBase(AbstractEntity):
 
         mode_code = row['mode_code'].replace(' ', '')
         base_type = legis_type[row['legislation_type'].rstrip()]
-        name = None if row['legislation_name']=='0' else row['legislation_name']
-        reference = row['legislation_reference']
-        topic = row['legal_topic'].rstrip()
+        name = self.extract_str(row, 'legislation_name')
+        reference = self.extract_str(row, 'legislation_name')
+        topic = self.extract_str(row, 'legal_topic')
+
         qs = 'INSERT INTO ' + self._table_name
         qs += '(mode_id, type, legislation_name, legislation_reference, '
         qs += 'legal_topic_id)'
