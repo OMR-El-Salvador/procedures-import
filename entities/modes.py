@@ -45,6 +45,7 @@ class Modes(AbstractEntity):
         desc = row['description']
         subject = row['subject']
         presentation_mean = self.extract_val(presentation_means, row['presentation_mean'])
+        presentation_url = None if row['presentation_url']=='' else row['presentation_url']
         validity_time_unit = self.extract_val(validity_time_units, row['validity_time_unit'])
         validity_time_amt = None if row['validity_time_amount']=='' else row['validity_time_amount']
         response_time_unit = self.extract_val(response_time_units, row['response_time_unit'])
@@ -65,15 +66,15 @@ class Modes(AbstractEntity):
         qs += '(code, name, description, procedure_id, subject, presentation_means, '
         qs += 'validity_time_unit, validity_time_amount, response_time_unit, response_time_amount, '
         qs += 'legal_time_unit, legal_time_amount, responsible_area, responsible_unit, class_id, '
-        qs += 'currency, charge_amount, charge_link, payment_places) '
+        qs += 'currency, charge_amount, charge_link, payment_places, presentation_url) '
         qs += 'VALUES (%s, %s, %s, (SELECT id FROM api.procedures WHERE code=%s LIMIT 1), %s, %s, '
         qs += '%s, %s, %s, %s, '
         qs += '%s, %s, %s, %s, (SELECT id FROM api.classes WHERE code=%s LIMIT 1), '
-        qs += '%s, %s, %s, %s::catalogs.places[]);'
+        qs += '%s, %s, %s, %s::catalogs.places[], %s);'
         values = (code, name, desc, procedure_code, subject, presentation_mean,
             validity_time_unit, validity_time_amt, response_time_unit, response_time_amt,
             legal_time_unit, legal_time_amount, responsible_area, responsible_unit, class_code,
-            currency, charge_amount, charge_link, payment_places)
+            currency, charge_amount, charge_link, payment_places, presentation_url)
 
         self._db.create_record(qs, values)
 
