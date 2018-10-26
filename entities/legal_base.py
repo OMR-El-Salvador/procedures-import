@@ -24,7 +24,8 @@ class LegalBase(AbstractEntity):
         'Acuerdo Ministerial': 'ministerial_agreement', 'Otro': 'other',
         'Constitución': 'constitution', 'Tratado Internacional': 'international_treaty',
         'Reglamento Técnico': 'technical_regulation', 'Decreto Ejecutivo': 'executive_order',
-        'Reglamento': 'regulation', 'Tratado': 'international_treaty' }
+        'Reglamento': 'regulation', 'Tratado': 'international_treaty', 'No existe': 'non_existent',
+        'Reglamento de ley': 'regulation'}
 
     with open('data/'+self._institution_code+'/legal_base.csv', encoding='utf-8') as csvfile:
       reader = csv.DictReader(csvfile)

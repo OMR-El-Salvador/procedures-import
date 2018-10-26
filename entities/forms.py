@@ -23,7 +23,7 @@ class Forms(AbstractEntity):
     with open('data/'+self._institution_code+'/forms.csv', encoding='utf-8') as csvfile:
       reader = csv.DictReader(csvfile)
       for row in reader:
-        if row['solicited']=='': continue
+        if row['solicited'] in ('', '0'): continue
 
         mode_code = row['mode_code'].replace(' ', '')
         name = self.extract_str(row, 'name')

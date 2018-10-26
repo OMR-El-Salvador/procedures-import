@@ -15,7 +15,7 @@ class Modes(AbstractEntity):
   def extract_places(self, places):
     if places=='0' or places=='': return None
     payment_places = { 1: 'central_offices', 2: 'regional_offices', 3: 'financial_institution',
-        4: 'online', 5: 'other', 6: 'treasury' }
+        4: 'online', 5: 'other', 6: 'treasury', 7: 'post_offices' }
     places_vals = places.replace(' ', '').split(',')
     result = []
     for place in places_vals: result.append(payment_places[int(place)])
@@ -65,6 +65,8 @@ class Modes(AbstractEntity):
 
         if cost_val != '0':
           cost_type = None
+          cost_amount = None
+          currency = None
           cost_description = self.extract_str(row, 'cost_description')
           cost_main_url = self.extract_str(row, 'cost_main_url')
           cost_secondary_url = self.extract_str(row, 'cost_secondary_url')
@@ -99,7 +101,7 @@ class Modes(AbstractEntity):
         qs += 'VALUES (%s, %s, %s, (SELECT id FROM api.procedures WHERE code=%s LIMIT 1), %s, %s, '
         qs += '%s, %s, %s, %s, '
         qs += '%s, %s, %s, %s, (SELECT id FROM api.classes WHERE code=%s LIMIT 1), '
-        qs += '%s' + (', currval(\'api.costs_id_seq\'::regclass)' if has_cost else '') + ');'
+        qs += '%s' + (', currval(\'api.costs_id_seq\'::regclass)' if has_cost else ', NULL') + ');'
 
         values = (code, name, desc, procedure_code, subject, presentation_mean,
             validity_time_unit, validity_time_amt, response_time_unit, response_time_amt,
