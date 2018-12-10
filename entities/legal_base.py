@@ -25,7 +25,8 @@ class LegalBase(AbstractEntity):
         'Constitución': 'constitution', 'Tratado Internacional': 'international_treaty',
         'Reglamento Técnico': 'technical_regulation', 'Decreto Ejecutivo': 'executive_order',
         'Reglamento': 'regulation', 'Tratado': 'international_treaty', 'No existe': 'non_existent',
-        'Reglamento de ley': 'regulation'}
+        'Reglamento de ley': 'regulation', 'Reglamento Tecnico': 'technical_regulation',
+        'otro': 'other' }
 
     with open('data/'+self._institution_code+'/legal_base.csv', encoding='utf-8') as csvfile:
       reader = csv.DictReader(csvfile)
@@ -34,7 +35,7 @@ class LegalBase(AbstractEntity):
         if row['legislation_type'].upper()=='NO APLICA': continue
 
         mode_code = row['mode_code'].replace(' ', '')
-        base_type = legis_type[row['legislation_type'].rstrip()]
+        base_type = legis_type[row['legislation_type'].strip()]
         name = self.extract_str(row, 'legislation_name')
         reference = self.extract_str(row, 'legislation_name')
         topic = self.extract_str(row, 'legal_topic')
