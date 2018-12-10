@@ -56,6 +56,7 @@ class Modes(AbstractEntity):
         response_time_amt = self.extract_str(row, 'response_time_amount')
         legal_time_unit = self.extract_val(legal_time_units, row['legal_time_unit'])
         legal_time_amount = self.extract_str(row, 'legal_time_amount')
+        legal_time_description = self.extract_str(row, 'legal_time_description')
         responsible_area = self.extract_str(row, 'responsible_area')
         responsible_unit = self.extract_str(row, 'responsible_unit')
         class_code = self.extract_val(classes_code, row['class_code'])
@@ -97,16 +98,19 @@ class Modes(AbstractEntity):
         qs += '(code, name, description, procedure_id, subject, presentation_means, '
         qs += 'validity_time_unit, validity_time_amount, response_time_unit, response_time_amount, '
         qs += 'legal_time_unit, legal_time_amount, responsible_area, responsible_unit, class_id, '
-        qs += 'presentation_url, cost_id) '
+        qs += 'presentation_url, cost_id, '
+        qs += 'legal_time_description) '
         qs += 'VALUES (%s, %s, %s, (SELECT id FROM api.procedures WHERE code=%s LIMIT 1), %s, %s, '
         qs += '%s, %s, %s, %s, '
         qs += '%s, %s, %s, %s, (SELECT id FROM api.classes WHERE code=%s LIMIT 1), '
-        qs += '%s' + (', currval(\'api.costs_id_seq\'::regclass)' if has_cost else ', NULL') + ');'
+        qs += '%s' + (', currval(\'api.costs_id_seq\'::regclass)' if has_cost else ', NULL') + ', '
+        qs += '%s);'
 
         values = (code, name, desc, procedure_code, subject, presentation_mean,
             validity_time_unit, validity_time_amt, response_time_unit, response_time_amt,
             legal_time_unit, legal_time_amount, responsible_area, responsible_unit, class_code,
-            presentation_url)
+            presentation_url,
+            legal_time_description)
 
         self._db.create_record(qs, values)
 
